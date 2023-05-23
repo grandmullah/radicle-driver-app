@@ -9,17 +9,25 @@ const Stack = createNativeStackNavigator();
 
 const Tab = createBottomTabNavigator();
 
+const forFade = ({ current }) => ({
+  cardStyle: {
+    opacity: current.progress,
+  },
+});
+
 export const AppStack = () => {
     return (
         <Tab.Navigator initialRouteName="Home"
         screenOptions={{
           tabBarActiveTintColor: '#e91e63',
+          headerShown:false,
         }}
       >
         <Tab.Screen
           name="Home"
           component={HomeScreens}
           options={{
+            headerShown:false,
             tabBarLabel: 'Home',
             tabBarIcon: ({ color, size }) => (
               <Icon name="home" color={color} size={size} />
@@ -30,9 +38,10 @@ export const AppStack = () => {
           name="Notifications"
           component={NotifcationScreens}
           options={{
+            headerShown:false,
             tabBarLabel: 'Updates',
             tabBarIcon: ({ color, size }) => (
-              <Icon name="bell" color={color} size={size} />
+              <Icon name="notifications" color={color} size={size} />
             ),
             tabBarBadge: 3,
           }}
@@ -54,7 +63,10 @@ export const AppStack = () => {
 const HomeScreens =() => {
     return (
         <Stack.Navigator>
-            <Stack.Screen  name='home' component={MapScreen}/>
+            <Stack.Screen  name='home' component={MapScreen} options={{
+              headerShown: false,
+              cardStyleInterpolator: forFade,
+            }}/>
         </Stack.Navigator>
     )
 }
@@ -62,7 +74,10 @@ const HomeScreens =() => {
 const AppScreens =() => {
     return (
         <Stack.Navigator>
-            <Stack.Screen name='app' component={MapScreen} />
+            <Stack.Screen name='app' component={MapScreen}options={{
+              headerShown: false,
+              cardStyleInterpolator: forFade,
+            }} />
         </Stack.Navigator>
     )
 }
@@ -70,7 +85,10 @@ const AppScreens =() => {
 const NotifcationScreens =() => {
     return (
         <Stack.Navigator>
-            <Stack.Screen name="notifications"  component={MapScreen}/>
+            <Stack.Screen name="notifications"  component={MapScreen}options={{
+              headerShown: false,
+              cardStyleInterpolator: forFade,
+            }}/>
         </Stack.Navigator>
     )
 }
