@@ -22,7 +22,8 @@ export default {
         "googleMapsApiKey": process.env.API_KEY_MAP
       },
       "bundleIdentifier": "com.radicle.driver",
-      "useFrameworks": "static"
+      "useFrameworks": "static",
+      googleServicesFile: "./GoogleService-Info.plist",
     },
     "android": {
       "adaptiveIcon": {
