@@ -4,6 +4,7 @@ import { Icon } from '@rneui/themed';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { MapScreen } from '../pages/Home/MapScreen';
+import { Home } from '../pages/Home';
 
 const Stack = createNativeStackNavigator();
 
@@ -63,7 +64,7 @@ export const AppStack = () => {
 const HomeScreens =() => {
     return (
         <Stack.Navigator>
-            <Stack.Screen  name='home' component={MapScreen} options={{
+            <Stack.Screen  name='home' component={Home} options={{
               headerShown: false,
               cardStyleInterpolator: forFade,
             }}/>

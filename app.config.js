@@ -21,7 +21,8 @@ export default {
         "usesNonExemptEncryption": false,
         "googleMapsApiKey": process.env.API_KEY_MAP
       },
-      "bundleIdentifier": "com.radicle.driver"
+      "bundleIdentifier": "com.radicle.driver",
+      "useFrameworks": "static"
     },
     "android": {
       "adaptiveIcon": {
@@ -29,6 +30,7 @@ export default {
         "backgroundColor": "#ffffff"
       },
       "package": "com.radicle.driver",
+      googleServicesFile: "./google-services.json",
       "config": {
         "googleMaps": {
           "apiKey": process.env.API_KEY_MAP
@@ -43,7 +45,7 @@ export default {
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": [
+    "plugins": ["@react-native-firebase/app",
       [
         "expo-location",
         {

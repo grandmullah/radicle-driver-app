@@ -1,6 +1,6 @@
 import { View, Text } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
-import { Center } from 'native-base'
+import { Center, VStack } from 'native-base'
 import MapView,{PROVIDER_GOOGLE} from 'react-native-maps'
 import { mapStyle } from '../../globals/mapStyle'
 import * as Location from 'expo-location';
@@ -10,7 +10,12 @@ export  function MapScreen() {
   const API_MAP_KEY = process.env.API_KEY_MAP
   console.log('key', API_MAP_KEY)
   const map = useRef(null)
-  const [location , setLocation] =  useState(null)
+  const [location , setLocation] =  useState({
+    latitude: -1.2921,
+    longitude:  36.8219,
+    latitudeDelta:0.09,
+    longitudeDelta: 1,
+  },)
   const getLocation = async () => {
 
     let { granted } = await Location.requestForegroundPermissionsAsync();
@@ -26,13 +31,14 @@ export  function MapScreen() {
       let {coords} = await Location.getCurrentPositionAsync({});
       setLocation(location);
       console.log(coords)
+      
   }
 
   useEffect(()=>{
     getLocation()
   })
   return (
-    <Center>
+    <VStack h={'100%'}>
       <MapView
         style={{width: '100%',height: '100%',}}
 
@@ -42,14 +48,9 @@ export  function MapScreen() {
         followsUserLocation 
         zoomControlEnabled
         ref={map} 
-        initialRegion={{
-          latitude: 37.78825,
-          longitude: -122.4324,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
-        }}
+        region={location}
       >
       </MapView>
-    </Center>
+    </VStack>
   )
 }

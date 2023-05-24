@@ -8,7 +8,12 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@polkadot/api": "^10.7.2",
+    "@polkadot/util-crypto": "^12.2.1",
     "@react-native-community/geolocation": "^3.0.6",
+    "@react-native-firebase/app": "^17.5.0",
+    "@react-native-firebase/database": "^17.5.0",
+    "@react-native-firebase/messaging": "^17.5.0",
     "@react-navigation/bottom-tabs": "^6.5.7",
     "@react-navigation/native": "^6.1.6",
     "@react-navigation/native-stack": "^6.9.12",
