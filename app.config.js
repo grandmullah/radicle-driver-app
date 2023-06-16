@@ -43,9 +43,6 @@ export default {
         "android.permission.FOREGROUND_SERVICE"
       ]
     },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    },
     "plugins": ["@react-native-firebase/app",
       [
         "expo-location",
