@@ -1,10 +1,16 @@
-import React from 'react';
+import React,{useState,useEffect} from 'react';
 import {View, StyleSheet} from 'react-native';
 import { Icon } from '@rneui/themed';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { MapScreen } from '../pages/Home/MapScreen';
 import { Home } from '../pages/Home';
+import * as SecureStore from 'expo-secure-store';
+import * as SplashScreen from 'expo-splash-screen';
+import { Onboard } from '../pages/onboard/onboard';
+import { RegistrationScreen } from '../pages/onboard/registrationScreen';
+import { useUpdatelocation } from '../hooks';
+import messaging from '@react-native-firebase/messaging';
 
 const Stack = createNativeStackNavigator();
 
@@ -16,7 +22,57 @@ const forFade = ({ current }) => ({
   },
 });
 
+
+
+
+export  function NavStack() {
+
+  const [onboardStatus, setOnboardStatus] = useState(null)
+
+  useEffect(()=>{
+    async function getValueFor(key) {
+      let result = await SecureStore.getItemAsync(key);
+      console.log(result)
+      setOnboardStatus(result)
+      await SplashScreen.hideAsync()
+      if (result ){
+        setOnboardStatus(result)
+        await SplashScreen.hideAsync()
+      }
+      
+    }
+    getValueFor('onboardStatus')
+  })
+
+  if(onboardStatus != `true` || onboardStatus === null ){
+      return (
+        <OnboardStack/>
+      )
+   }else{
+    /**
+     * should have drawer and tab navigation
+     */
+    return (
+      <AppStack />
+    );
+   }
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const AppStack = () => {
+  useUpdatelocation()
+  requestUserPermission()
     return (
         <Tab.Navigator initialRouteName="Home"
         screenOptions={{
@@ -61,6 +117,25 @@ export const AppStack = () => {
     );
 }
 
+
+export function OnboardStack() { 
+  return(
+  <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Screen  name='Onboard' component={Onboard} options={{
+      headerShown: false,
+      cardStyleInterpolator: forFade,
+    }}/>
+    <Stack.Screen  name='Registration' component={RegistrationScreen} options={{
+      headerShown: false,
+      cardStyleInterpolator: forFade,
+    }}/>
+    <Stack.Screen  name='HomeStack' component={AppStack} options={{
+      headerShown: false,
+      cardStyleInterpolator: forFade,
+    }}/>
+  </Stack.Navigator>
+  )}
+
 const HomeScreens =() => {
     return (
         <Stack.Navigator>
@@ -94,3 +169,15 @@ const NotifcationScreens =() => {
     )
 }
 
+
+async function requestUserPermission() {
+  const authStatus = await messaging().requestPermission();
+  const enabled =
+    authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+    authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+  if (enabled) {
+
+    console.log('Authorization status:', authStatus);
+  }
+}
