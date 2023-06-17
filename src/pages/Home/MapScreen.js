@@ -1,4 +1,4 @@
-import { View, Text } from 'react-native'
+import { View, Text ,StyleSheet} from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import { Center, VStack } from 'native-base'
 import MapView,{PROVIDER_GOOGLE} from 'react-native-maps'
@@ -38,7 +38,7 @@ export  function MapScreen() {
     getLocation()
   })
   return (
-    <VStack h={'100%'}>
+    
       <MapView
         style={{width: '100%',height: '100%',}}
 
@@ -51,6 +51,6 @@ export  function MapScreen() {
         region={location}
       >
       </MapView>
-    </VStack>
   )
 }
+

@@ -11,6 +11,8 @@ import { Onboard } from '../pages/onboard/onboard';
 import { RegistrationScreen } from '../pages/onboard/registrationScreen';
 import { useUpdatelocation } from '../hooks';
 import messaging from '@react-native-firebase/messaging';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import { Profile, profile } from '../pages/profile/profile';
 
 const Stack = createNativeStackNavigator();
 
@@ -71,7 +73,7 @@ export  function NavStack() {
 
 
 export const AppStack = () => {
-  useUpdatelocation()
+  // useUpdatelocation()
   requestUserPermission()
     return (
         <Tab.Navigator initialRouteName="Home"
@@ -138,19 +140,21 @@ export function OnboardStack() {
 
 const HomeScreens =() => {
     return (
+      <BottomSheetModalProvider>
         <Stack.Navigator>
             <Stack.Screen  name='home' component={Home} options={{
               headerShown: false,
               cardStyleInterpolator: forFade,
             }}/>
         </Stack.Navigator>
+        </BottomSheetModalProvider>
     )
 }
 
 const AppScreens =() => {
     return (
         <Stack.Navigator>
-            <Stack.Screen name='app' component={MapScreen}options={{
+            <Stack.Screen name='app' component={Profile} options={{
               headerShown: false,
               cardStyleInterpolator: forFade,
             }} />
@@ -161,7 +165,7 @@ const AppScreens =() => {
 const NotifcationScreens =() => {
     return (
         <Stack.Navigator>
-            <Stack.Screen name="notifications"  component={MapScreen}options={{
+            <Stack.Screen name="notifications"  component={Profile} options={{
               headerShown: false,
               cardStyleInterpolator: forFade,
             }}/>

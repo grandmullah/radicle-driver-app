@@ -44,6 +44,7 @@ export default {
       ]
     },
     "plugins": ["@react-native-firebase/app",
+    "@notifee/react-native",
       [
         "expo-location",
         {
