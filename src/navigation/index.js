@@ -13,6 +13,9 @@ import { useUpdatelocation } from '../hooks';
 import messaging from '@react-native-firebase/messaging';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { Profile, profile } from '../pages/profile/profile';
+import { useDispatch } from 'react-redux';
+import { updateMnemonic, updatess } from '../app/features/cryptoSlice';
+import { ApiPromise, Keyring, WsProvider } from '@polkadot/api';
 
 const Stack = createNativeStackNavigator();
 
@@ -25,20 +28,39 @@ const forFade = ({ current }) => ({
 });
 
 
-
+export const wsProvider = new WsProvider('ws://35.232.24.147:9944');
 
 export  function NavStack() {
 
+  
   const [onboardStatus, setOnboardStatus] = useState(null)
+  const [key, setKey] = useState(false)
+  const dispatch = useDispatch()
 
   useEffect(()=>{
     async function getValueFor(key) {
-      let result = await SecureStore.getItemAsync(key);
-      console.log(result)
-      setOnboardStatus(result)
-      await SplashScreen.hideAsync()
-      if (result ){
-        setOnboardStatus(result)
+      try {
+        const result = await SecureStore.getItemAsync(key);
+        console.log(result)
+        setOnboardStatus(result);
+        if (result ){
+          dispatch(updatess())
+          const api = await ApiPromise.create({ provider: wsProvider });
+          const mnemonic = await SecureStore.getItemAsync('mnemonic')
+          const keyring = new Keyring({ type: 'sr25519' })
+          const pair = keyring.createFromUri(mnemonic);
+          
+          dispatch(updateMnemonic(mnemonic))
+          console.log(pair.address)
+          const now = await api.query.identity.identity(pair.address)
+          console.log(now.isEmpty)
+          setKey(now.isEmpty)
+          
+          console.log(mnemonic)
+        }
+      } catch (error) {
+        console.log(error)
+      }finally{
         await SplashScreen.hideAsync()
       }
       
@@ -46,11 +68,21 @@ export  function NavStack() {
     getValueFor('onboardStatus')
   })
 
-  if(onboardStatus != `true` || onboardStatus === null ){
+  if(onboardStatus != `true` && key ){
       return (
         <OnboardStack/>
       )
-   }else{
+   }
+   if( onboardStatus === `true` && key){
+    return (
+      <SafeAreaProvider>
+    
+        <RegistrationStack/>
+      
+      </SafeAreaProvider>
+    )
+   }
+   if(onboardStatus === `true` && !key){
     /**
      * should have drawer and tab navigation
      */
@@ -73,8 +105,8 @@ export  function NavStack() {
 
 
 export const AppStack = () => {
-  // useUpdatelocation()
-  requestUserPermission()
+  useUpdatelocation()
+  // requestUserPermission()
     return (
         <Tab.Navigator initialRouteName="Home"
         screenOptions={{
@@ -127,7 +159,7 @@ export function OnboardStack() {
       headerShown: false,
       cardStyleInterpolator: forFade,
     }}/>
-    <Stack.Screen  name='Registration' component={RegistrationScreen} options={{
+    <Stack.Screen  name='Registration' component={RegistrationStack} options={{
       headerShown: false,
       cardStyleInterpolator: forFade,
     }}/>
@@ -173,6 +205,20 @@ const NotifcationScreens =() => {
     )
 }
 
+const RegistrationStack = () => {
+  return (
+    <Stack.Navigator>
+        <Stack.Screen name="RegistrationScreens"  component={RegistrationScreen} options={{
+          headerShown: false,
+          cardStyleInterpolator: forFade,
+        }}/>
+        <Stack.Screen name="HomeStack"  component={AppStack} options={{
+          headerShown: false,
+          cardStyleInterpolator: forFade,
+        }}/>
+    </Stack.Navigator>
+)
+}
 
 async function requestUserPermission() {
   const authStatus = await messaging().requestPermission();

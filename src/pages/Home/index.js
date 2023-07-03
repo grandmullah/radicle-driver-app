@@ -4,11 +4,15 @@ import { Center, Stack, VStack , HStack,Badge,Button} from 'native-base'
 import { MapScreen } from './MapScreen'
 import { BottomSheetFlatList, BottomSheetModal } from '@gorhom/bottom-sheet'
 import { Avatar } from '@rneui/base'
+import { useSelector } from 'react-redux'
+import Loading from './loading'
 
 export  function Home() {
+
+  const {state} = useSelector(state => state.crypto)
    const  bottomSheetModalRef = useRef(null)
   const snapPoints = useMemo(() => ['15%', '50%'], [])
-
+ console.log(state)
   const handlePresentModalPress = useCallback(() => {
     bottomSheetModalRef.current?.present();
   }, []);
@@ -19,8 +23,11 @@ export  function Home() {
   
   return (
     <VStack h={'100%'} flex={1}>
+      {
+        state == 'loading' && <Loading/>
+      }
       <Pressable style={styles.topView}  >
-      <Badge // bg="red.400"
+        <Badge // bg="red.400"
         colorScheme="danger" rounded="full" mb={-4} mr={-4} zIndex={1} variant="solid" alignSelf="flex-end" _text={{
           fontSize: 12
         }}>
@@ -36,7 +43,7 @@ export  function Home() {
               requests
             </Button>
         
-        </Pressable>
+      </Pressable>
       <View style={styles.bottomView} ><MapScreen/></View>
       
       

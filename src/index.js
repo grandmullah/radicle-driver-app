@@ -4,14 +4,18 @@ import { NativeBaseProvider } from 'native-base';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import { AppStack, NavStack } from './navigation';
+import { Provider } from 'react-redux';
+import { store } from './app/store';
 
 export const MainNav = () => {
     return (
         // add provirer store
         <SafeAreaProvider>
-        <NavigationContainer>
-            <NavStack/>
-        </NavigationContainer>
+            <Provider store = {store}>
+                <NavigationContainer>
+                    <NavStack/>
+                </NavigationContainer>
+            </Provider>
         </SafeAreaProvider>
     );
 }

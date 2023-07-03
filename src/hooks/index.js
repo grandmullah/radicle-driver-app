@@ -3,6 +3,9 @@ import database from '@react-native-firebase/database';
 import * as SecureStore from 'expo-secure-store';
 import * as Location from 'expo-location';
 import messaging from '@react-native-firebase/messaging';
+import axios from 'axios'
+
+
 const {
     mnemonicGenerate,
     mnemonicToMiniSecret,
@@ -29,8 +32,10 @@ export const useUpdatelocation =()=> {
     
         const {coords} = await Location.getCurrentPositionAsync({});
         const accountDetails = await fetchAccount()
+        await messaging().registerDeviceForRemoteMessages();
         const FCM_TOKEN = await messaging().getToken()
         setLocation(coords);
+        // console.log('location',coords)
         setToken(FCM_TOKEN)
         setAccount(accountDetails)
         // console.log('coords',FCM_TOKEN)
@@ -40,15 +45,19 @@ export const useUpdatelocation =()=> {
     useEffect(()=>{
         const interval = setInterval(() => {
         getLocation()
-        console.log('location',location)
+        // console.log('location',location)
         if(account && location){
-            database()
-            .ref(`/drivers/${account.address}`)
-            .update({
-                location: location,
-                fcmToken: token,
-            })
-            .then(() => console.log('Data set.'));
+          axios.post('https://3b6f-41-80-114-95.ngrok-free.app/driver-location', {
+            id: account.address,
+            location: location
+          })
+          .then(function (response) {
+            console.log('response');
+          })
+          .catch(function (error) {
+            console.log(`error occured`)
+            console.log(error);
+          });
         }
         
     }, 5000);

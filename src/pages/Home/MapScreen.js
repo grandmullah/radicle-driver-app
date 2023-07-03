@@ -15,7 +15,7 @@ export  function MapScreen() {
     longitude:  36.8219,
     latitudeDelta:0.09,
     longitudeDelta: 1,
-  },)
+  })
   const getLocation = async () => {
 
     let { granted } = await Location.requestForegroundPermissionsAsync();
@@ -29,14 +29,14 @@ export  function MapScreen() {
       }
 
       let {coords} = await Location.getCurrentPositionAsync({});
-      setLocation(location);
-      console.log(coords)
+      // setLocation({latitude:coords.latitude,longitude:coords.longitude});
+      // console.log(coords)
       
   }
 
   useEffect(()=>{
     getLocation()
-  })
+  },[location])
   return (
     
       <MapView
