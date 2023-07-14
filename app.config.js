@@ -12,6 +12,10 @@ export default {
       "resizeMode": "contain",
       "backgroundColor": "#449342"
     },
+    "androidStatusBar": {
+      "backgroundColor": "#449342",
+      "translucent": false
+    },
     "assetBundlePatterns": [
       "**/*"
     ],

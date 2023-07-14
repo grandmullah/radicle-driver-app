@@ -20,14 +20,14 @@ export const cryptoSlice = createSlice({
   initialState,
   reducers: {
 
-    updateMnemonic: (state,action) => {
+    updateState: (state,action) => {
+      state.state=action.payload
       
-        console.log('here',action.payload)
-        const keyring = new Keyring({ type: 'sr25519' });
-        const newPair = keyring.addFromUri(action.payload);
-        state.Pair=newPair
-        state.mnemonic = action.payload
-       state.state='loaded'
+    },
+    updateKey: (state,action)=>{
+      state.Pair=action.payload.pair
+      state.mnemonic =action.payload.mnemonic
+      state.state = 'loaded'
     },
     updatess:(state) =>{
       state.state='loading'
@@ -36,7 +36,7 @@ export const cryptoSlice = createSlice({
 })
 
 // Action creators are generated for each case reducer function
-export const { updateMnemonic,updatess } = cryptoSlice.actions
+export const {updateState,updateKey, updatess } = cryptoSlice.actions
 
 export default cryptoSlice.reducer
 
@@ -45,18 +45,25 @@ export default cryptoSlice.reducer
 
 export function generateMnemonic ( ) {
     return  async (dispatch, getState) => {
-        const mnemonicAlice = mnemonicGenerate();
+      const mnemonicAlice = mnemonicGenerate();
 
-        console.log(`Generated mnemonic: ${mnemonicAlice}`);
-        const keyring = new Keyring({ type: 'sr25519' });
-        const newPair = keyring.addFromUri(mnemonicAlice);
-        axios.get(`https://3b6f-41-80-114-95.ngrok-free.app/check?id=${newPair.address}`)
-        dispatch(updateMnemonic(mnemonicAlice))
-         await SecureStore.setItemAsync('mnemonic', `${mnemonicAlice}`);
-    await SecureStore.setItemAsync('onboardStatus', `true`);
+      console.log(`Generated mnemonic: ${mnemonicAlice}`);
+      const keyring = new Keyring({ type: 'sr25519' });
+      const newPair = keyring.addFromUri(mnemonicAlice);
+      axios.get(`http://34.171.4.42:4000/check?id=${newPair.address}`)
+      dispatch(updateMnemonic(mnemonicAlice))
+      await SecureStore.setItemAsync('mnemonic', `${mnemonicAlice}`);
+      await SecureStore.setItemAsync('onboardStatus', `true`);
     }
-    
- 
-      
-  
+}
+
+export function updateMnemonic (mnemonic) {
+  return  async (dispatch, getState) => {
+    dispatch(updateState('loading'))
+    console.log('here',mnemonic)
+    const keyring = new Keyring({ type: 'sr25519' });
+    const newPair = keyring.addFromUri(mnemonic);
+    dispatch(updateKey({mnemonic:mnemonic, pair:newPair}))
+    // dispatch(updateState('loaded'))
+  }
 }

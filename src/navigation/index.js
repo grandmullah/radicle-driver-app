@@ -1,6 +1,7 @@
 import React,{useState,useEffect} from 'react';
 import {View, StyleSheet} from 'react-native';
 import { Icon } from '@rneui/themed';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { MapScreen } from '../pages/Home/MapScreen';
@@ -17,6 +18,7 @@ import { useDispatch } from 'react-redux';
 import { updateMnemonic, updatess } from '../app/features/cryptoSlice';
 import { ApiPromise, Keyring, WsProvider } from '@polkadot/api';
 
+
 const Stack = createNativeStackNavigator();
 
 const Tab = createBottomTabNavigator();
@@ -27,62 +29,60 @@ const forFade = ({ current }) => ({
   },
 });
 
-
-export const wsProvider = new WsProvider('ws://35.232.24.147:9944');
+SplashScreen.preventAutoHideAsync();
+export const wsProvider = new WsProvider('ws://34.171.4.42:9944');
 
 export  function NavStack() {
 
   
   const [onboardStatus, setOnboardStatus] = useState(null)
-  const [key, setKey] = useState(false)
+  const [key, setKey] = useState(true)
+   const [loading, setloading] = useState(true)
   const dispatch = useDispatch()
 
   useEffect(()=>{
     async function getValueFor(key) {
       try {
         const result = await SecureStore.getItemAsync(key);
-        console.log(result)
+        
         setOnboardStatus(result);
         if (result ){
-          dispatch(updatess())
           const api = await ApiPromise.create({ provider: wsProvider });
           const mnemonic = await SecureStore.getItemAsync('mnemonic')
           const keyring = new Keyring({ type: 'sr25519' })
-          const pair = keyring.createFromUri(mnemonic);
-          
-          dispatch(updateMnemonic(mnemonic))
+          const pair =  keyring.createFromUri(mnemonic);
           console.log(pair.address)
           const now = await api.query.identity.identity(pair.address)
           console.log(now.isEmpty)
+          // setKEy
           setKey(now.isEmpty)
-          
+          dispatch(updateMnemonic(mnemonic))
           console.log(mnemonic)
+          requestUserPermission()
+         
         }
       } catch (error) {
         console.log(error)
       }finally{
+        setloading(false)
         await SplashScreen.hideAsync()
       }
       
     }
     getValueFor('onboardStatus')
-  })
+  },[])
 
-  if(onboardStatus != `true` && key ){
+  if(onboardStatus != `true` && key && !loading){
       return (
         <OnboardStack/>
       )
    }
-   if( onboardStatus === `true` && key){
+   if( onboardStatus === `true` && key && !loading){
     return (
-      <SafeAreaProvider>
-    
         <RegistrationStack/>
-      
-      </SafeAreaProvider>
     )
    }
-   if(onboardStatus === `true` && !key){
+   if(onboardStatus === `true` && !key && !loading){
     /**
      * should have drawer and tab navigation
      */
@@ -105,8 +105,10 @@ export  function NavStack() {
 
 
 export const AppStack = () => {
+  const dispatch = useDispatch()
+  // dispatch()
   useUpdatelocation()
-  // requestUserPermission()
+  
     return (
         <Tab.Navigator initialRouteName="Home"
         screenOptions={{

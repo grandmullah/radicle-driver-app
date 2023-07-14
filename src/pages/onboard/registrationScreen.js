@@ -5,14 +5,13 @@ import * as SecureStore from 'expo-secure-store';
 import PhoneInput from 'react-phone-number-input'
 import { Keyring } from '@polkadot/api';
 import { ApiPromise, WsProvider } from '@polkadot/api';
-export const wsProvider = new WsProvider('ws://35.232.24.147:9944');
+export const wsProvider = new WsProvider('ws://34.171.4.42:9944');
 import { useNavigation } from '@react-navigation/native';
 import { useSelector } from 'react-redux';
-
-
+import Loading from '../Home/loading';
 // const keyring = new Keyring({ type: 'sr25519' });
 export const RegistrationScreen = ({navigation}) => {
-    
+    const {state} = useSelector(state => state.crypto)
     const toast = useToast()
     const toastIdRef = React.useRef();
     const {mnemonic,Pair} = useSelector((state)=>state.crypto)
@@ -52,16 +51,13 @@ export const RegistrationScreen = ({navigation}) => {
               console.log(`Transaction included at blockHash ${result.status.asInBlock}`);
             } else if (result.status.isFinalized) {
               console.log(`Transaction finalized at blockHash ${result.status.asFinalized}`);
+              navigation.navigate('HomeStack')
               txHash();
               
             }
-          }).then(()=>{
-            navigation.navigate('HomeStack')
-          });
+          })
         console.log(`Submitted with hash ${txHash}`);
        
-
-        
         
     } catch (error) {
         console.log(error)
@@ -73,6 +69,9 @@ export const RegistrationScreen = ({navigation}) => {
         <Center sty le={styles.con}>
             
             <VStack w="100%">
+            {
+                state == 'loading' && <Loading/>
+            }
                 <Stack space={2}>
                     <Stack marginTop={'10%'} marginX={'5%'} padding={10}> 
                         <Text mb="4" bold fontSize="lg" letterSpacing={5}>
@@ -112,19 +111,3 @@ const styles = StyleSheet.create({
         
     }
 })
-
-
-                // <Center w={'100%'} padding={5}>
-                //     <Text fontFamily={'monospace'} fontSize={'30'} color={'white'}>{`${PHRASE}`}</Text>
-                // </Center>
-                // <Center padding={6}>
-                //     <Stack>
-                //         <FormControl>
-                //         <FormControl.Label>Phone Number</FormControl.Label>
-                //         <Input />
-                //         </FormControl>
-                //     </Stack>
-                // </Center>
-                // <Center padding={4}>
-                //     <Button onPress={()=>handleSignup()} size={'md'}>proceed with signup</Button>
-                // </Center>
