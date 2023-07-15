@@ -14,9 +14,11 @@ const {
   } = require('@polkadot/util-crypto');
   import { Keyring } from '@polkadot/keyring';
 import { socket } from "./socket";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { updateCurrentLocation } from "../app/features/rideSlice";
 
 export const useUpdatelocation =()=> {
+  const dispatch = useDispatch()
     const [location , setLocation] =  useState(null)
    
     const [token , setToken] = useState(null)
@@ -46,9 +48,10 @@ export const useUpdatelocation =()=> {
     useEffect(()=>{
         const interval = setInterval(() => {
         getLocation()
-        
+         console.log(token)
         // console.log('location',location)
         if(account && location){
+          dispatch(updateCurrentLocation(location))
           socket.emit('update-location',{
             id: account.Pair.address,
             token:token,
@@ -61,7 +64,7 @@ export const useUpdatelocation =()=> {
         return () => {
             clearInterval(interval);
           };
-    },[location,account,socket])
+    },[location,account,socket,token])
 }
 
 

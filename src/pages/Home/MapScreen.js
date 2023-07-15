@@ -1,15 +1,20 @@
-import { View, Text ,StyleSheet} from 'react-native'
+import { View, Text ,StyleSheet,Dimensions} from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import { Center, VStack } from 'native-base'
 import MapView,{PROVIDER_GOOGLE} from 'react-native-maps'
 import { mapStyle } from '../../globals/mapStyle'
 import * as Location from 'expo-location';
+import { useSelector } from 'react-redux'
+import MapViewDirections from 'react-native-maps-directions';
+import {colors} from '../../globals/styles'
 
 
-export  function MapScreen() {
+
+export  function MapScreen({origin,destination}) {
   const API_MAP_KEY = process.env.API_KEY_MAP
-  console.log('key', API_MAP_KEY)
+  
   const map = useRef(null)
+  const [dirReady, setReady] = useState(false)
   const [location , setLocation] =  useState({
     latitude: -1.2921,
     longitude:  36.8219,
@@ -34,9 +39,19 @@ export  function MapScreen() {
       
   }
 
-  useEffect(()=>{
+  useEffect(()=>{ 
+    
     getLocation()
-  },[location])
+    const ready = (Object.keys(origin|| {}).length != 0 && Object.keys(destination|| {}).length != 0 )
+    console.log(ready)
+    setReady(ready)
+  },[origin,destination,location])
+
+
+  const {id,state,details,rider,currentLocation} = useSelector((state)=>state.ride)
+  console.log(details)
+  const { width, height } = Dimensions.get('window');
+  console.log(details.origin)
   return (
     
       <MapView
@@ -50,6 +65,30 @@ export  function MapScreen() {
         ref={map} 
         region={location}
       >
+        {(dirReady && state==='accepted') && 
+            <MapViewDirections
+            origin={currentLocation}
+            destination={details.origin}
+            language='en'
+            strokeWidth={4}
+            strokeColor={colors.blue}
+            apikey={API_MAP_KEY}
+            timePrecision='now'
+            mode='DRIVING'
+            onReady={result => {
+              console.log(`Distance: ${result.distance} km`)
+              console.log(`Duration: ${result.duration} min.,${result.fares},${result.waypointOrder}`)
+              map.current.fitToCoordinates(result.coordinates, {
+                edgePadding: {
+                  right: (width / 20),
+                  bottom: (height / 20),
+                  left: (width / 20),
+                  top: (height / 20),
+                }
+              });
+            }}
+          />
+        }
       </MapView>
   )
 }

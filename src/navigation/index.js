@@ -12,11 +12,13 @@ import { Onboard } from '../pages/onboard/onboard';
 import { RegistrationScreen } from '../pages/onboard/registrationScreen';
 import { useUpdatelocation } from '../hooks';
 import messaging from '@react-native-firebase/messaging';
+import notifee ,{ EventType }from '@notifee/react-native';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { Profile, profile } from '../pages/profile/profile';
 import { useDispatch } from 'react-redux';
 import { updateMnemonic, updatess } from '../app/features/cryptoSlice';
 import { ApiPromise, Keyring, WsProvider } from '@polkadot/api';
+import { acceptRide } from '../app/features/rideSlice';
 
 
 const Stack = createNativeStackNavigator();
@@ -71,6 +73,17 @@ export  function NavStack() {
     }
     getValueFor('onboardStatus')
   },[])
+  
+ 
+  notifee.onBackgroundEvent(async ({ type, detail }) => {
+      if (type === EventType.ACTION_PRESS && detail.pressAction.id === 'accept') {
+      //   console.log('accepted',detail)//
+        // update db via socket 
+        dispatch(acceptRide(JSON.parse(detail.notification.data.data)))
+       
+  
+      }
+    });
 
   if(onboardStatus != `true` && key && !loading){
       return (
@@ -107,6 +120,7 @@ export  function NavStack() {
 export const AppStack = () => {
   const dispatch = useDispatch()
   // dispatch()
+
   useUpdatelocation()
   
     return (
@@ -173,6 +187,7 @@ export function OnboardStack() {
   )}
 
 const HomeScreens =() => {
+
     return (
       <BottomSheetModalProvider>
         <Stack.Navigator>
@@ -233,3 +248,28 @@ async function requestUserPermission() {
     console.log('Authorization status:', authStatus);
   }
 }
+
+
+async function onMessageReceived(message) {
+  const channelId = await notifee.createChannel({
+    id: 'default',
+    name: 'Default Channel',
+  });
+  console.log(message)
+  await notifee.displayNotification({
+    title: 'Notification Title',
+    body: 'Main body content of the notification',
+    android: {
+      channelId,
+      // optional, defaults to 'ic_launcher'.
+      // pressAction is needed if you want the notification to open the app when pressed
+      pressAction: {
+        id: 'default',
+      },
+    },
+  });
+}
+
+messaging().onMessage(onMessageReceived);
+// messaging().setBackgroundMessageHandler(onMessageReceived);
+
