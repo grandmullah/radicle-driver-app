@@ -6,12 +6,10 @@ import { wsProvider } from '../onboard/registrationScreen';
 import { useSelector,useDispatch } from 'react-redux';
 import { ApiPromise } from '@polkadot/api';
 import { updateState, updaterideState } from '../../app/features/rideSlice';
-import { socket } from '../../hooks/socket';
 
 const { width } = Dimensions.get('window');
 
-export const AcceptScreen = () => {
-   const {id } = useSelector(state=>state.ride)
+export const EndRide = () => {
   const slideAnimation = useRef(new Animated.Value(0)).current;
   const toast = useToast()
   const toastIdRef = React.useRef()
@@ -71,7 +69,6 @@ export const AcceptScreen = () => {
                 console.log(`Transaction finalized at blockHash ${result.status.asFinalized}`);
                 
                 txHash();
-                socket.emit('started',(id))
                 dispatch(updateState('started'))
                 dispatch(updaterideState(`loaded`))
               }
@@ -94,7 +91,7 @@ export const AcceptScreen = () => {
         <Icon name="arrow-forward" size={24} color="white" style={styles.arrow} />
       </View>
       <Animated.View style={[styles.slideContainer, slideStyles]} {...panResponder.panHandlers}>
-        <Text style={styles.text}>Slide to Start ride</Text>
+        <Text style={styles.text}>Slide to END ride</Text>
       </Animated.View>
     </View>
   );
@@ -120,7 +117,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgb(0, 128, 0)', // Fallback color if gradient is not supported
-    background: 'linear-gradient(to bottom, #00ff00, #008000)', // Gradient green background
+    background: 'linear-gradient(to bottom, #00ff00, #FF0000)', // Gradient green background
   },
   text: {
     fontSize: 20,

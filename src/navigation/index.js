@@ -18,7 +18,7 @@ import { Profile, profile } from '../pages/profile/profile';
 import { useDispatch } from 'react-redux';
 import { updateMnemonic, updatess } from '../app/features/cryptoSlice';
 import { ApiPromise, Keyring, WsProvider } from '@polkadot/api';
-import { acceptRide } from '../app/features/rideSlice';
+import { acceptRide, notification } from '../app/features/rideSlice';
 
 
 const Stack = createNativeStackNavigator();
@@ -33,6 +33,46 @@ const forFade = ({ current }) => ({
 
 SplashScreen.preventAutoHideAsync();
 export const wsProvider = new WsProvider('ws://34.171.4.42:9944');
+messaging().setBackgroundMessageHandler(async remoteMessage => {
+  console.log('Message handled in the background!', remoteMessage);
+  await notifee.requestPermission()
+  const channelId = await notifee.createChannel({
+      id: 'default',
+      name: 'Default Channel',
+    });
+  const d = JSON.parse(remoteMessage.data.data)
+    if(d.type === 'requests'){
+      await notifee.displayNotification({
+          title: 'Ride Request',
+          body: 'is requesting a Ride ',
+          data:remoteMessage.data,
+          android: {
+              channelId: channelId,
+              actions: [
+              {
+                  title: 'Accept',
+                  icon: 'https://my-cdn.com/icons/snooze.png',
+                  pressAction: {
+                  id: 'accept',
+                  launchActivity: 'default',
+                  },
+              },
+              {
+                  title: 'Reject',
+                  icon: 'https://my-cdn.com/icons/snooze.png',
+                  pressAction: {
+                  id: 'reject',
+                  
+                  },
+              },
+              ],
+          },
+        });
+    }
+
+
+
+})
 
 export  function NavStack() {
 
@@ -76,15 +116,35 @@ export  function NavStack() {
   
  
   notifee.onBackgroundEvent(async ({ type, detail }) => {
-      if (type === EventType.ACTION_PRESS && detail.pressAction.id === 'accept') {
-      //   console.log('accepted',detail)//
-        // update db via socket 
-        dispatch(acceptRide(JSON.parse(detail.notification.data.data)))
-       
-  
+    if (type === EventType.ACTION_PRESS && detail.pressAction.id === 'accept') {
+    //   console.log('accepted',detail)//
+      // update db via socket 
+      dispatch(acceptRide(JSON.parse(detail.notification.data.data)))
+      
+
+    }
+  });
+  useEffect(() => {
+    return notifee.onForegroundEvent(({ type, detail }) => {
+      switch (type) {
+        case EventType.DISMISSED:
+          console.log('User dismissed notification', detail.notification);
+          break;
+        case EventType.PRESS:
+          console.log('User pressed notification', detail.notification);
+          break;
+        case EventType.ACTION_PRESS:
+          if ( detail.pressAction.id === 'accept') {
+            dispatch(acceptRide(JSON.parse(detail.notification.data.data)))
+          }
+          break;
       }
     });
-
+  }, []);
+  async function onMessageReceived(message) {
+    dispatch(notification(message))
+  }
+  messaging().onMessage(onMessageReceived);
   if(onboardStatus != `true` && key && !loading){
       return (
         <OnboardStack/>
@@ -237,6 +297,9 @@ const RegistrationStack = () => {
 )
 }
 
+
+
+
 async function requestUserPermission() {
   const authStatus = await messaging().requestPermission();
   const enabled =
@@ -247,29 +310,10 @@ async function requestUserPermission() {
 
     console.log('Authorization status:', authStatus);
   }
+
 }
 
 
-async function onMessageReceived(message) {
-  const channelId = await notifee.createChannel({
-    id: 'default',
-    name: 'Default Channel',
-  });
-  console.log(message)
-  await notifee.displayNotification({
-    title: 'Notification Title',
-    body: 'Main body content of the notification',
-    android: {
-      channelId,
-      // optional, defaults to 'ic_launcher'.
-      // pressAction is needed if you want the notification to open the app when pressed
-      pressAction: {
-        id: 'default',
-      },
-    },
-  });
-}
 
-messaging().onMessage(onMessageReceived);
 // messaging().setBackgroundMessageHandler(onMessageReceived);
 

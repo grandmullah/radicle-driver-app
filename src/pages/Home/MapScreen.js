@@ -1,7 +1,7 @@
 import { View, Text ,StyleSheet,Dimensions} from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
-import { Center, VStack } from 'native-base'
-import MapView,{PROVIDER_GOOGLE} from 'react-native-maps'
+import { Center, VStack ,Image} from 'native-base'
+import MapView,{PROVIDER_GOOGLE,Marker} from 'react-native-maps'
 import { mapStyle } from '../../globals/mapStyle'
 import * as Location from 'expo-location';
 import { useSelector } from 'react-redux'
@@ -65,16 +65,20 @@ export  function MapScreen({origin,destination}) {
         ref={map} 
         region={location}
       >
-        {(dirReady && state==='accepted') && 
+        {(dirReady && state==='started' || state==='accepted') && 
             <MapViewDirections
-            origin={currentLocation}
-            destination={details.origin}
+            origin={origin}
+            destination={destination}
             language='en'
             strokeWidth={4}
             strokeColor={colors.blue}
+            optimizeWaypoints={true}
             apikey={API_MAP_KEY}
             timePrecision='now'
             mode='DRIVING'
+            onStart={(params) => {
+              console.log(`Turn-by-turn navigation started with params: ${JSON.stringify(params)}`);
+            }}
             onReady={result => {
               console.log(`Distance: ${result.distance} km`)
               console.log(`Duration: ${result.duration} min.,${result.fares},${result.waypointOrder}`)
@@ -89,7 +93,49 @@ export  function MapScreen({origin,destination}) {
             }}
           />
         }
+        {(dirReady && state==='accepted') && 
+        <Marker coordinate={details.origin} description="Starting Location" title="Start" anchor = {{x:1,y:1}}>
+          <Image 
+            source={require('../../../assets/2526124.png')}
+            alt='location'
+            style={styles.markerOrigin2}
+          />
+        </Marker>
+        }
+
       </MapView>
   )
 }
 
+const styles = StyleSheet.create({
+  carsAround: {
+    width: 28,
+    height: 14,
+    }, 
+    markerOrigin2: {
+      width: 30,
+      height:40,
+      borderRadius:0
+     },
+     topLeft: {
+      flex:1,
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      padding: 10,
+      backgroundColor: 'white',
+    },
+    topRight: {
+      position: 'absolute',
+      top: 0,
+      right: 0,
+      padding: 10,
+      backgroundColor: 'white',
+    },
+    content: {
+    
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+
+})

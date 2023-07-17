@@ -2,20 +2,23 @@ import { View, Text,StyleSheet, Pressable } from 'react-native'
 import React, { useMemo, useRef,useCallback } from 'react'
 import { Center, Stack, VStack , HStack,Badge,Button} from 'native-base'
 import { MapScreen } from './MapScreen'
-import { BottomSheetFlatList, BottomSheetModal } from '@gorhom/bottom-sheet'
+import BottomSheet, { BottomSheetFlatList, BottomSheetModal  } from '@gorhom/bottom-sheet'
 import { Avatar } from '@rneui/base'
 import { useSelector } from 'react-redux'
 import Loading from './loading'
 import notifee from '@notifee/react-native';
 import messaging from '@react-native-firebase/messaging';
 import { AcceptScreen } from './slider'
+import { Arrivedscreen } from './arrivedscree'
+import { EndRide } from './endRide'
 
 export  function Home() {
-  const {id,details,rider,currentLocation} = useSelector((state)=>state.ride)
+  const ride = useSelector((state)=>state.ride)
+  const {id,api,details,rider,currentLocation} = useSelector((state)=>state.ride)
 
   const {state} = useSelector(state => state.crypto)
    const  bottomSheetModalRef = useRef(null)
-  const snapPoints = useMemo(() => ['15%', '50%'], [])
+  const snapPoints = useMemo(() => ['25%',], [])
  console.log(state)
   const handlePresentModalPress = useCallback(async () => {
     bottomSheetModalRef.current?.present();
@@ -32,7 +35,7 @@ export  function Home() {
   return (
     <VStack h={'100%'} flex={1}>
       {
-        state == 'loading' && <Loading/>
+        (state == 'loading'|| api.state == 'loading')  && <Loading/>
       }
       <Pressable style={styles.topView}  >
         <Badge // bg="red.400"
@@ -53,18 +56,45 @@ export  function Home() {
         
       </Pressable>
       <View style={styles.bottomView} >
-        <MapScreen origin={currentLocation} destination={details.origin}/>
+        <MapScreen origin={currentLocation} destination={api.state === 'loaded'? details.destination :details.origin}/>
       </View>
       
+      {
+        (id.length > 0 && ride.state == 'accepted' ) && <BottomSheet
+        ref={bottomSheetModalRef}
+        index={0}
+        snapPoints={snapPoints}
+        onChange={handleSheetChanges}
+      > 
+        <Arrivedscreen />
+      </BottomSheet>
       
-      <BottomSheetModal
+      }{
+        (id.length > 0 && ride.state == 'arrived' ) && <BottomSheet
         ref={bottomSheetModalRef}
         index={0}
         snapPoints={snapPoints}
         onChange={handleSheetChanges}
       >
-        <AcceptScreen/>
-      </BottomSheetModal>
+       
+        <AcceptScreen />
+       
+      </BottomSheet>
+      
+      }{
+        (id.length > 0 && ride.state == 'started' ) && <BottomSheet
+        ref={bottomSheetModalRef}
+        index={0}
+        snapPoints={snapPoints}
+        onChange={handleSheetChanges}
+      >
+       
+       <EndRide/>
+       
+      </BottomSheet>
+      
+      }
+      
     </VStack>
   )
 }
