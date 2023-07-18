@@ -5,12 +5,17 @@ import { Button, Icon } from '@rneui/themed';
 import Onboarding from 'react-native-onboarding-swiper';
 import { VStack } from 'native-base';
 import { generateMnemonic } from '../../app/features/cryptoSlice';
-import { useDispatch } from 'react-redux';
+import { useDispatch,useSelector } from 'react-redux';
+import Loading from '../Home/loading';
 
 export const Onboard = ({navigation}) => {
   const dispatch = useDispatch()
+  const {state} = useSelector(state => state.crypto)
     return(
         <VStack h={'100%'}>
+                      {
+                (state == 'loading') && <Loading/>
+            }
         <Onboarding
     showDone={false}
     onSkip={async() => {

@@ -45,6 +45,7 @@ export default cryptoSlice.reducer
 
 export function generateMnemonic ( ) {
     return  async (dispatch, getState) => {
+      dispatch(updateState('loading'))
       const mnemonicAlice = mnemonicGenerate();
 
       console.log(`Generated mnemonic: ${mnemonicAlice}`);

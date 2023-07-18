@@ -15,10 +15,12 @@ import messaging from '@react-native-firebase/messaging';
 import notifee ,{ EventType }from '@notifee/react-native';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { Profile, profile } from '../pages/profile/profile';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { updateMnemonic, updatess } from '../app/features/cryptoSlice';
 import { ApiPromise, Keyring, WsProvider } from '@polkadot/api';
-import { acceptRide, notification } from '../app/features/rideSlice';
+import { acceptRide, notification, updateProfile } from '../app/features/rideSlice';
+import Loading from '../pages/Home/loading';
+import { CabRegistration } from '../pages/onboard/CabRegistration';
 
 
 const Stack = createNativeStackNavigator();
@@ -32,7 +34,13 @@ const forFade = ({ current }) => ({
 });
 
 SplashScreen.preventAutoHideAsync();
+
+
 export const wsProvider = new WsProvider('ws://34.171.4.42:9944');
+
+
+
+
 messaging().setBackgroundMessageHandler(async remoteMessage => {
   console.log('Message handled in the background!', remoteMessage);
   await notifee.requestPermission()
@@ -94,8 +102,9 @@ export  function NavStack() {
           const keyring = new Keyring({ type: 'sr25519' })
           const pair =  keyring.createFromUri(mnemonic);
           console.log(pair.address)
-          const now = await api.query.identity.identity(pair.address)
-          console.log(now.isEmpty)
+          const now = await api.query.identity.drivers(pair.address)
+          const gg = await api.query.identity.drivers(pair.address)
+          console.log(now)
           // setKEy
           setKey(now.isEmpty)
           dispatch(updateMnemonic(mnemonic))
@@ -180,51 +189,44 @@ export  function NavStack() {
 export const AppStack = () => {
   const dispatch = useDispatch()
   // dispatch()
+  //check if has  cab 
 
   useUpdatelocation()
-  
+
+  const [cab,setCab]= useState(null)
+
+  const { Pair }= useSelector(state=>state.crypto)
+
+  useEffect(()=>{
+    async function getValueFor(key) {
+      const api = await ApiPromise.create({ provider: wsProvider });
+      const now = await api.query.identity.drivers(Pair.address)
+      const g = now.toHuman()
+      console.log(g)
+      setCab(g.cab)
+      dispatch(updateProfile(g))
+
+    }
+    getValueFor()
+  },[])
+   if (cab == null){
+    return <Loading />
+   }
+   if(cab==0 ){
+    return(
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name='Cabregis' component={CabRegistration}/>
+        <Stack.Screen name='HomeTabs' component={HomeTabs}/>
+      </Stack.Navigator>
+      
+    )
+  }
+   if(cab>0){
     return (
-        <Tab.Navigator initialRouteName="Home"
-        screenOptions={{
-          tabBarActiveTintColor: '#e91e63',
-          headerShown:false,
-        }}
-      >
-        <Tab.Screen
-          name="Home"
-          component={HomeScreens}
-          options={{
-            headerShown:false,
-            tabBarLabel: 'Home',
-            tabBarIcon: ({ color, size }) => (
-              <Icon name="home" color={color} size={size} />
-            ),
-          }}
-        />
-        <Tab.Screen
-          name="Notifications"
-          component={NotifcationScreens}
-          options={{
-            headerShown:false,
-            tabBarLabel: 'Updates',
-            tabBarIcon: ({ color, size }) => (
-              <Icon name="notifications" color={color} size={size} />
-            ),
-            tabBarBadge: 3,
-          }}
-        />
-        <Tab.Screen
-          name="Profile"
-          component={AppScreens}
-          options={{
-            tabBarLabel: 'Profile',
-            tabBarIcon: ({ color, size }) => (
-              <Icon name="menu" color={color} size={size} />
-            ),
-          }}
-        />
-        </Tab.Navigator>
-    );
+      <HomeTabs />
+    )
+   }
+    
 }
 
 
@@ -297,6 +299,50 @@ const RegistrationStack = () => {
 )
 }
 
+const HomeTabs =()=>{
+  return (
+    <Tab.Navigator initialRouteName="Home"
+    screenOptions={{
+      tabBarActiveTintColor: '#e91e63',
+      headerShown:false,
+    }}
+  >
+    <Tab.Screen
+      name="Home"
+      component={HomeScreens}
+      options={{
+        headerShown:false,
+        tabBarLabel: 'Home',
+        tabBarIcon: ({ color, size }) => (
+          <Icon name="home" color={color} size={size} />
+        ),
+      }}
+    />
+    <Tab.Screen
+      name="Notifications"
+      component={NotifcationScreens}
+      options={{
+        headerShown:false,
+        tabBarLabel: 'Updates',
+        tabBarIcon: ({ color, size }) => (
+          <Icon name="notifications" color={color} size={size} />
+        ),
+        tabBarBadge: 3,
+      }}
+    />
+    <Tab.Screen
+      name="Profile"
+      component={AppScreens}
+      options={{
+        tabBarLabel: 'Profile',
+        tabBarIcon: ({ color, size }) => (
+          <Icon name="menu" color={color} size={size} />
+        ),
+      }}
+    />
+    </Tab.Navigator>
+);
+}
 
 
 

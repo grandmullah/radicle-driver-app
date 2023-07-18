@@ -12,6 +12,7 @@ const initialState = {
       rider:'',
       details: {},
       id:'',
+      profile:{},
       currentLocation:{}
       
 }
@@ -23,6 +24,9 @@ export const rideSlice = createSlice({
                   state.state=action.payload
                   
                   
+            },
+            updateProfile:(state,action)=>{
+                  state.profile = action.payload
             },
             updateState: (state,action) => {
                   state.state=action.payload
@@ -51,7 +55,7 @@ export const rideSlice = createSlice({
 })
 
 
-export const {updateDetails,updateState,updateRider,updateId,updateCurrentLocation,updaterideState } = rideSlice.actions
+export const {updateDetails,updateState,updateRider,updateId,updateCurrentLocation,updaterideState,updateProfile } = rideSlice.actions
 
 export default rideSlice.reducer
 
