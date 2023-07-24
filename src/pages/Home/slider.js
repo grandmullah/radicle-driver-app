@@ -60,7 +60,7 @@ export const AcceptScreen = () => {
           const api = await ApiPromise.create({ provider: wsProvider });
           
           const txHash = await api.tx.ride
-          .acceptRide()
+          .acceptRide(id,Pair.address)
           .signAndSend(Pair, (result) => {
     
   

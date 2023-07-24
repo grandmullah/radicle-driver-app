@@ -11,6 +11,7 @@ import messaging from '@react-native-firebase/messaging';
 import { AcceptScreen } from './slider'
 import { Arrivedscreen } from './arrivedscree'
 import { EndRide } from './endRide'
+import { RatingScreen } from '../Notifcations/Feeback'
 
 export  function Home() {
   const ride = useSelector((state)=>state.ride)
@@ -19,6 +20,7 @@ export  function Home() {
   const {state} = useSelector(state => state.crypto)
    const  bottomSheetModalRef = useRef(null)
   const snapPoints = useMemo(() => ['25%',], [])
+  const snapPoints2 = useMemo(() => ['50%',], [])
  console.log(state)
   const handlePresentModalPress = useCallback(async () => {
     bottomSheetModalRef.current?.present();
@@ -94,7 +96,19 @@ export  function Home() {
       </BottomSheet>
       
       }
+      {
+        (id.length > 0 && ride.state == 'completing' ) && <BottomSheet
+        ref={bottomSheetModalRef}
+        index={0}
+        snapPoints={snapPoints2}
+        onChange={handleSheetChanges}
+      >
+       
+       <RatingScreen/>
+       
+      </BottomSheet>
       
+      }
     </VStack>
   )
 }

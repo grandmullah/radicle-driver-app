@@ -6,6 +6,7 @@ import { wsProvider } from '../onboard/registrationScreen';
 import { useSelector,useDispatch } from 'react-redux';
 import { ApiPromise } from '@polkadot/api';
 import { updateState, updaterideState } from '../../app/features/rideSlice';
+import { RatingScreen } from '../Notifcations/Feeback';
 
 const { width } = Dimensions.get('window');
 
@@ -50,36 +51,9 @@ export const EndRide = () => {
   const slideStyles = {
     transform: [{ translateX: slideAnimation }],
   };
-  const handleAccept= async () => {
-      try {
-            
-        
-          dispatch(updaterideState(`loading`))
-          const api = await ApiPromise.create({ provider: wsProvider });
-          
-          const txHash = await api.tx.ride
-          .acceptRide()
-          .signAndSend(Pair, (result) => {
-    
-  
-            console.log( `Current status is ${result.status}`)
-              if (result.status.isInBlock) {
-                console.log(`Transaction included at blockHash ${result.status.asInBlock}`);
-              } else if (result.status.isFinalized) {
-                console.log(`Transaction finalized at blockHash ${result.status.asFinalized}`);
-                
-                txHash();
-                dispatch(updateState('started'))
-                dispatch(updaterideState(`loaded`))
-              }
-            })
-          console.log(`Submitted with hash ${txHash}`);
-         
-          
-      } catch (error) {
-          console.log(error)
-      }
-      
+  const handleComplete= async () => {
+
+     dispatch(updateState('completing'))
     }
 
 
@@ -91,8 +65,9 @@ export const EndRide = () => {
         <Icon name="arrow-forward" size={24} color="white" style={styles.arrow} />
       </View>
       <Animated.View style={[styles.slideContainer, slideStyles]} {...panResponder.panHandlers}>
-        <Text style={styles.text}>Slide to END ride</Text>
+        <Text onPress={handleComplete} style={styles.text}> END RIDE</Text>
       </Animated.View>
+       
     </View>
   );
 };

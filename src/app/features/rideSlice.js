@@ -50,12 +50,23 @@ export const rideSlice = createSlice({
             updateCurrentLocation:(state,action)=>{
                   state.currentLocation=action.payload
             },
+            reset:(state,action)=>{
+                  state.api.state = '',
+                  state.api.message = ''
+                  state.state ='',
+                  state.rider='',
+                  state.details='',
+                  state.id='',
+                  state.profile={},
+                  state.currentLocation={}
+
+            }
       }
 
 })
 
 
-export const {updateDetails,updateState,updateRider,updateId,updateCurrentLocation,updaterideState,updateProfile } = rideSlice.actions
+export const {updateDetails,updateState,updateRider,updateId,updateCurrentLocation,updaterideState,updateProfile,reset } = rideSlice.actions
 
 export default rideSlice.reducer
 

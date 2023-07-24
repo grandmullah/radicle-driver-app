@@ -21,6 +21,7 @@ import { ApiPromise, Keyring, WsProvider } from '@polkadot/api';
 import { acceptRide, notification, updateProfile } from '../app/features/rideSlice';
 import Loading from '../pages/Home/loading';
 import { CabRegistration } from '../pages/onboard/CabRegistration';
+import Rides from '../pages/Notifcations/rides';
 
 
 const Stack = createNativeStackNavigator();
@@ -276,7 +277,7 @@ const AppScreens =() => {
 const NotifcationScreens =() => {
     return (
         <Stack.Navigator>
-            <Stack.Screen name="notifications"  component={Profile} options={{
+            <Stack.Screen name="notifications"  component={Rides} options={{
               headerShown: false,
               cardStyleInterpolator: forFade,
             }}/>
@@ -323,11 +324,10 @@ const HomeTabs =()=>{
       component={NotifcationScreens}
       options={{
         headerShown:false,
-        tabBarLabel: 'Updates',
+        tabBarLabel: 'Rides & Rewards',
         tabBarIcon: ({ color, size }) => (
           <Icon name="notifications" color={color} size={size} />
         ),
-        tabBarBadge: 3,
       }}
     />
     <Tab.Screen
